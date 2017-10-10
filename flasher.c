@@ -38,7 +38,7 @@ int errcode;
 void printerr() {
   
 if (errcode == -1) printf ("- timeout of the command \n");
-else printf ("- error code% 02x \n", errcode);
+else printf("- error code %02x\n", errcode);
 }
 
 // ************************************************ ***
@@ -115,7 +115,7 @@ static struct {
 
 blksize = fblock; // the initial value of the block size
 res = ptable [part] .hd.psize-blk * fblock; // the size of the remaining piece to the end of the file
-if (res <fblock) blksize = res; // adjust the size of the last block
+if (res<fblock) blksize = res; // adjust the size of the last block
 
 // the command code
 cmd_dload_block.cmd=0x42;
@@ -198,7 +198,7 @@ printf("\n");
 //  printf("\n02i %s)",part,ptable[part].pname);
  // start partition command
  if (!dload_start(ptable[part].hd.code,ptable[part].hd.psize)) {
-   printf ("\r! Rejected the title of the partition %i (%s)", part, ptable [part] .pname);
+   printf("\r! Rejected the title of the partition %i (%s)", part, ptable [part] .pname);
    printerr();
    exit(-2);
  }  
@@ -211,7 +211,7 @@ printf("\n");
 
     // Send the next block
   if (!dload_block(part,blk,ptable[part].pimage)) {
-   printf ("\n! The %i block of %i (%s)", blk, part, ptable [part] .pname) is discarded;
+   printf("\n! The %i block of %i (%s)", blk, part, ptable[part].pname) is discarded;
    printerr();
    exit(-2);
   }  
@@ -219,7 +219,7 @@ printf("\n");
 
 // close the section
  if (!dload_end(ptable[part].hd.code,ptable[part].hd.psize)) {
-   printf ("\n! Error closing section %i (%s)", part, ptable [part] .pname);
+   printf("\n! Error closing section %i (%s)", part, ptable[part].pname);
    printerr();
    exit(-2);
  }  

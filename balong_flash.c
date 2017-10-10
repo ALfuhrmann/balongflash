@@ -126,7 +126,7 @@ printf ("\n The utility is intended for flashing modems on the Balong V7 chipset
      return -1;
   }
 }  
-printf ("\n Program for flashing devices on the Balong-chipset, V3.0.% i, (c) forth32, 2015, GNU GPLv3", BUILDNO);
+printf ("\n Program for flashing devices on the Balong-chipset, V3.0.%i, (c) forth32, 2015, GNU GPLv3", BUILDNO);
 #ifdef WIN32
 printf ("\n Port for Windows 32bit (c) rust3028, 2016");
 #endif
@@ -165,12 +165,12 @@ if (optind> = argc) {
 
 if (nflag) 
   // for -n - just copy the prefix
-  strncpy (fdir, argv [optind], 39);
+  strncpy(fdir,argv[optind],39);
 else {
   // for single-file operations
 in = fopen (argv [optind], "rb");
 if (in == 0) {
-  printf ("\n Error opening% s", argv [optind]);
+  printf("\n Error opening% s", argv[optind]);
   return -1;
 }
 }
@@ -178,26 +178,26 @@ if (in == 0) {
 
 // Find partitions inside the file
 if (! nflag) {
-  findparts (in);
-  show_fw_info ();
+  findparts(in);
+  show_fw_info();
 }
 
 // Find the firmware files in the specified directory
-else findfiles (fdir);
+else findfiles(fdir);
   
 // ------ Card file output mode
-if (mflag) show_file_map ();
+if (mflag) show_file_map();
 
 // output by CRC errors
-if (! fflag && errflag) {
-    printf ("\n \n! The input file contains errors - we quit \n");
+if (!fflag && errflag) {
+    printf ("\n\n! The input file contains errors - we quit \n");
     return -1;
 }
 
 // ------- The mode of cutting the firmware file
 if (eflag | sflag) {
-  fwsplit (sflag);
-  printf ("\n");
+  fwsplit(sflag);
+  printf("\n");
   return 0;
 }
 
@@ -213,7 +213,7 @@ open_port (devname);
 res=dloadversion();
 if (res == -1) return -2;
 if (res == 0) {
-  printf ("\n The modem is already in HDLC mode");
+  printf("\n The modem is already in HDLC mode");
   goto hdlc;
 }
 
@@ -238,8 +238,8 @@ printf("\n----------------------------------------------------\n");
 
 if ((optind> = argc) & rflag) {
    // reboot without specifying a file
-   restart_modem ();
-   exit (0);
+   restart_modem();
+   exit(0);
 }
 
 // Write the whole flash drive

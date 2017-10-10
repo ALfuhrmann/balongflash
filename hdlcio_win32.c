@@ -85,7 +85,7 @@ replybuf[incount++]=c;
 if (masslen != 0) {
  res=read(siofd,replybuf+1,masslen-1);
  if (res != (masslen-1)) {
-   printf ("\ n Too short response from modem: %i bytes, expected %i bytes \n", res + 1, masslen);
+   printf ("\nToo short response from modem: %i bytes, expected %i bytes \n", res+1, masslen);
    dump(replybuf,res+1,0);
    return 0;
  }  
@@ -274,7 +274,7 @@ strcat(device, devname);
 hSerial = CreateFileA(device, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 if (hSerial == INVALID_HANDLE_VALUE)
 {
-   printf ("\n! - COM serial port %s cannot be opened \n", devname);
+   printf ("\n! - COM%s serial port cannot be opened \n", devname);
    exit(0); 
 }
 
@@ -409,7 +409,7 @@ strcat(cbuf,cmd);
 strcat(cbuf,"\r");
 
 port_timeout(100);
-// Clean the receiver and transmitter buffer
+// Clean the receive and transmit buffer
 PurgeComm(hSerial, PURGE_RXCLEAR);
 
 // send the command

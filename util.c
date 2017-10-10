@@ -126,7 +126,7 @@ return -1;
 }
   
 //****************************************************
-//*------- Режим разрезания файла прошивки
+//*------- Cutting mode of the firmware file
 //****************************************************
 void fwsplit(uint32_t sflag) {
  
@@ -134,7 +134,7 @@ uint32_t i;
 FILE* out;
 uint8_t filename[200];
 
-printf ("\ n Selecting partitions from the firmware file: \ n \ n ## Offset Size Name \ n ---------------------------- --------- ");
+printf("\n Selecting partitions from the firmware file:\n\n ## Offset Size Name \n ---------------------------- --------- ");
 for (i=0;i<npart;i++) {  
    printf("\n %02i %08x %8i  %s",i,ptable[i].offset,ptable[i].hd.psize,ptable[i].pname); 
    // формируем имя файла
@@ -169,11 +169,11 @@ usleep(100000);
 
 res=atcmd("^DATAMODE",replybuf);
 if (res != 6) {
-  printf ("\ n Invalid response length for ^ DATAMODE");
+  printf("\ n Invalid response length for ^ DATAMODE");
   exit(-2);
 }  
 if (memcmp(replybuf,OKrsp,6) != 0) {
-  printf ("\ n The ^DATAMODE command is rejected, possibly a digital signature mode is required \ n");
+  printf("\n The ^DATAMODE command is rejected, possibly a digital signature mode is required \n");
   exit(-2);
 }  
 }
@@ -184,7 +184,7 @@ if (memcmp(replybuf,OKrsp,6) != 0) {
 void leave_hdlc() {
 
 uint8_t replybuf[100]; 
-unsigned char cmddone [7] = {0x1}; // exit from HDLC command
+unsigned char cmddone[7] = {0x1}; // exit from HDLC command
   
 send_cmd(cmddone,1,replybuf);
 }
@@ -202,31 +202,31 @@ unsigned char cmdver[7] = {0x0c}; // command of the protocol version request
   
 iolen=send_cmd(cmdver,1,replybuf);
 if (iolen == 0) {
-  printf ("\ n No response from modem in HDLC mode \ n");
+  printf ("\n No response from modem in HDLC mode \n");
   exit(-2);
 }  
 if (replybuf[0] == 0x7e) memcpy(replybuf,replybuf+1,iolen-1);
 if (replybuf[0] != 0x0d) {
-  printf ("\ n Error obtaining protocol version \ n");
+  printf ("\n Error obtaining protocol version \n");
   exit(-2);
 }  
   
 i=replybuf[1];
 replybuf[2+i]=0;
-printf ("\ n Protocol version: %s", replybuf + 2);
+printf ("\n Protocol version: %s", replybuf + 2);
 }
 
 
 
 //****************************************************
-//*  Перезагрузка модема
+//*  Reloading the modem
 //****************************************************
 void restart_modem() {
 
 unsigned char cmd_reset[7]={0xa};           // команда выхода из HDLC
 uint8_t replybuf[100]; 
 
-printf ("\ n Reboot the modem ... \ n");
+printf("\n Reboot the modem ... \n");
 send_cmd(cmd_reset,1,replybuf);
 atcmd("^RESET",replybuf);
 }
@@ -241,18 +241,18 @@ uint32_t iolen;
 unsigned char cmd_getproduct[30]={0x45};
 
 iolen=send_cmd(cmd_getproduct,1,replybuf);
-if (iolen> 2) printf ("\ n Device ID: %s", replybuf + 2);
+if (iolen> 2) printf("\n Device ID: %s", replybuf + 2);
 }
 
 
 //****************************************************
-//* Вывод карты файла прошивки
+//* Output of the firmware file card
 //****************************************************
 void show_file_map() {
 
 int i;  
   
-printf ("\ n \ n ## Offset Size Compression Name \ n ----------------------------------- ------------ ");
+printf("\n\n ## Offset Size Compression Name \n -----------------------------------------------");
 for (i=0;i<npart;i++) { 
      printf("\n %02i %08x %8i  ",i,ptable[i].offset,ptable[i].hd.psize);
      if (ptable[i].zflag == 0) 
@@ -285,22 +285,22 @@ void show_fw_info() {
 uint8_t* sptr; 
 char ver[36];
   
-if (ptable [0] .hd.version [0]! = ':') printf ("\ n Firmware version: %s", ptable [0] .hd.version); // nonstandard version string
+if (ptable[0].hd.version[0] != ':') printf("\n Firmware version: %s", ptable[0].hd.version); // nonstandard version string
 else {
   // standard version string
   memset(ver,0,sizeof(ver));  
   strncpy(ver,ptable[0].hd.version,32);  
-  sptr = strrchr (ver + 1, ':'); // look for the separator-colon
-  if (sptr == 0) printf ("\ n Firmware version: %s", ver); // not found - inconsistency with the standard
+  sptr = strrchr(ver + 1, ':'); // look for the separator-colon
+  if (sptr == 0) printf("\n Firmware version: %s", ver); // not found - inconsistency with the standard
   else {
     *sptr=0;
-    printf ("\ n Firmware version: %s", sptr + 1);
-    printf ("\ n Platform: %s", ver + 1);
+    printf("\n Firmware version: %s", sptr + 1);
+    printf("\n Platform: %s", ver + 1);
   }
 }  
   
-printf ("\ n Assembly date: %s %s", ptable [0] .hd.date, ptable [0] .hd.time);
-printf ("\ n Header: version %i, match code: %8.8s", ptable [0] .hd.hdversion, ptable [0] .hd.unlock);
+printf("\n Assembly date: %s %s", ptable [0] .hd.date, ptable [0] .hd.time);
+printf("\n Header: version %i, match code: %8.8s", ptable [0] .hd.hdversion, ptable [0] .hd.unlock);
 }
 
 
