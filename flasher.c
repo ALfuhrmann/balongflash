@@ -211,7 +211,7 @@ printf("\n");
 
     // Send the next block
   if (!dload_block(part,blk,ptable[part].pimage)) {
-   printf("\n! The %i block of %i (%s)", blk, part, ptable[part].pname) is discarded;
+   printf("\n! The %i block of %i (%s)", blk, part, ptable[part].pname);
    printerr();
    exit(-2);
   }  

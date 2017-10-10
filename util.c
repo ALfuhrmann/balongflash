@@ -169,7 +169,7 @@ usleep(100000);
 
 res=atcmd("^DATAMODE",replybuf);
 if (res != 6) {
-  printf("\ n Invalid response length for ^ DATAMODE");
+  printf("\n Invalid response length for ^ DATAMODE");
   exit(-2);
 }  
 if (memcmp(replybuf,OKrsp,6) != 0) {
