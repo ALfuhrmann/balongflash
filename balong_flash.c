@@ -24,22 +24,22 @@
 #include "signver.h"
 #include "zlib.h"
 
-// флаг ошибки структуры файла
-unsigned int errflag=0;
+// file structure error flag
+unsigned int errflag = 0;
 
-// флаг цифровой подписи
-int gflag=0;
-// флаг типа прошивки
-int dflag=0;
+// digital signature flag
+int gflag = 0;
+// flag of the firmware type
+int dflag = 0;
 
-// тип прошивки из заголовка файла
-int dload_id=-1;
+// type of firmware from the file header
+int dload_id = -1;
 
-//***********************************************
-//* Таблица разделов
-//***********************************************
-struct ptb_t ptable[120];
-int npart=0; // число разделов в таблице
+// ***********************************************
+// * Table of sections
+// ***********************************************
+struct ptb_t ptable [120];
+int npart = 0; // number of partitions in the table
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -48,38 +48,38 @@ int main(int argc, char* argv[]) {
 
 unsigned int opt;
 int res;
-FILE* in;
-char devname[50] = "";
-unsigned int  mflag=0,eflag=0,rflag=0,sflag=0,nflag=0,kflag=0,fflag=0;
-unsigned char fdir[40];   // каталог для мультифайловой прошивки
+FILE * in;
+char devname [50] = "";
+unsigned int mflag = 0, eflag = 0, rflag = 0, sflag = 0, nflag = 0, kflag = 0, fflag = 0;
+unsigned char fdir [40]; // directory for multifile firmware
 
-// разбор командной строки
-while ((opt = getopt(argc, argv, "d:hp:mersng:kf")) != -1) {
-  switch (opt) {
-   case 'h': 
-     
-printf("\n Утилита предназначена для прошивки модемов на чипсете Balong V7\n\n\
-%s [ключи] <имя файла для загрузки или имя каталога с файлами>\n\n\
- Допустимы следующие ключи:\n\n"
+// parse the command line
+while ((opt = getopt (argc, argv, "d: hp: mersng: kf"))! = -1) {
+  switch (opt) {
+   case 'h':
+     
+printf ("\n The utility is intended for flashing modems on the Balong V7 chipset \n\n \
+ %s [keys] <file name to upload or directory name with files> \n\n \
+ The following keys are allowed: \n\n "
 #ifndef WIN32
-"-p <tty> - последовательный порт для общения с загрузчиком (по умолчанию /dev/ttyUSB0)\n"
+"-p <tty> - serial port for communicating with the loader (by default /dev/ttyUSB0) \n"
 #else
-"-p # - номер последовательного порта для общения с загрузчиком (например, -p8)\n"
-"  если ключ -p не указан, производится автоопределение порта\n"
+"-p # is the serial port number for communicating with the loader (for example, -p8) \n"
+"if -p is not specified, autodetection of the port is performed \n"
 #endif
-"-n       - режим мультифайловой прошивки из указанного каталога\n\
--g#      - установка режима цифровой подписи\n\
-  -gl - описание параметров\n\
-  -gd - запрет автоопределения подписи\n\
--m       - вывести карту файла прошивки и завершить работу\n\
--e       - разобрать файл прошивки на разделы без заголовков\n\
--s       - разобрать файл прошивки на разделы с заголовками\n\
--k       - не перезагружать модем по окончании прошивки\n\
--r       - принудительно перезагрузить модем без прошивки разделов\n\
--f       - прошить даже при наличии ошибок CRC в исходном файле\n\
--d#      - установка типа прошивки (DLOAD_ID, 0..7), -dl - список типов\n\
-\n",argv[0]);
-    return 0;
+"-n - multifile firmware mode from the specified directory \n \
+-g # - set the digital signature mode \n \
+  -gl - description of parameters \n \
+  -gd - prohibits autodetection of the signature \n \
+-m - display the firmware file and exit \n \
+-e - parse the firmware file into partitions without headers \n \
+-s - parse the firmware file into sections with headers \n \
+-k - do not restart the modem at the end of the firmware \n \
+-r - force restart the modem without flashing partitions \n \
+-f - flash even if there are CRC errors in the source file \n \
+-d # - install the firmware type (DLOAD_ID, 0..7), -dl - list of types \n \
+\n ", argv [0]);
+    return 0;
 
    case 'p':
     strcpy(devname,optarg);
@@ -126,130 +126,130 @@ printf("\n Утилита предназначена для прошивки м�
      return -1;
   }
 }  
-printf("\n Программа для прошивки устройств на Balong-чипсете, V3.0.%i, (c) forth32, 2015, GNU GPLv3",BUILDNO);
+printf ("\n Program for flashing devices on the Balong-chipset, V3.0.% i, (c) forth32, 2015, GNU GPLv3", BUILDNO);
 #ifdef WIN32
-printf("\n Порт для Windows 32bit  (c) rust3028, 2016");
+printf ("\n Port for Windows 32bit (c) rust3028, 2016");
 #endif
 printf("\n--------------------------------------------------------------------------------------------------\n");
 
 if (eflag&sflag) {
-  printf("\n Ключи -s и -e несовместимы\n");
-  return -1;
+  printf ("\n The -s and -e options are incompatible \n");
+  return -1;
 }  
 
 if (kflag&rflag) {
-  printf("\n Ключи -k и -r несовместимы\n");
-  return -1;
+  printf ("\n The -k and -r options are incompatible \n");
+  return -1;
 }  
 
 if (nflag&(eflag|sflag|mflag)) {
-  printf("\n Ключ -n несовместим с ключами -s, -m и -e\n");
-  return -1;
-}  
-  
+  printf ("\n The -n switch is incompatible with the -s, -m and -e \n" keys);
+  return -1;
+}
+  
 
-// ------  перезагрузка без указания файла
-//--------------------------------------------
-if ((optind>=argc)&rflag) goto sio; 
+// ------ reboot without specifying a file
+// --------------------------------------------
+if ((optind> = argc) & rflag) goto sio;
 
 
-// Открытие входного файла
-//--------------------------------------------
-if (optind>=argc) {
-  if (nflag)
-    printf("\n - Не указан каталог с файлами\n");
-  else 
-    printf("\n - Не указано имя файла для загрузки, используйте ключ -h для подсказки\n");
-  return -1;
+// Open the input file
+// --------------------------------------------
+if (optind> = argc) {
+  if (nflag)
+    printf ("\n - The directory with files is not specified \n");
+  else
+    printf ("\n - The name of the file to upload is not specified, use the -h switch for the prompt \n");
+  return -1;
 }  
 
 if (nflag) 
-  // для -n - просто копируем префикс
-  strncpy(fdir,argv[optind],39);
+  // for -n - just copy the prefix
+  strncpy (fdir, argv [optind], 39);
 else {
-  // для однофайловых операций
-in=fopen(argv[optind],"rb");
+  // for single-file operations
+in = fopen (argv [optind], "rb");
 if (in == 0) {
-  printf("\n Ошибка открытия %s",argv[optind]);
-  return -1;
+  printf ("\n Error opening% s", argv [optind]);
+  return -1;
 }
 }
 
 
-// Поиск разделов внутри файла
-if (!nflag) {
-  findparts(in);
-  show_fw_info();
-}  
-
-// Поиск файлов прошивок в указанном каталоге
-else findfiles(fdir);
-  
-//------ Режим вывода карты файла прошивки
-if (mflag) show_file_map();
-
-// выход по ошибкам CRC
-if (!fflag && errflag) {
-    printf("\n\n! Входной файл содержит ошибки - завершаем работу\n");
-    return -1; 
+// Find partitions inside the file
+if (! nflag) {
+  findparts (in);
+  show_fw_info ();
 }
 
-//------- Режим разрезания файла прошивки
-if (eflag|sflag) {
-  fwsplit(sflag);
-  printf("\n");
-  return 0;
+// Find the firmware files in the specified directory
+else findfiles (fdir);
+  
+// ------ Card file output mode
+if (mflag) show_file_map ();
+
+// output by CRC errors
+if (! fflag && errflag) {
+    printf ("\n \n! The input file contains errors - we quit \n");
+    return -1;
+}
+
+// ------- The mode of cutting the firmware file
+if (eflag | sflag) {
+  fwsplit (sflag);
+  printf ("\n");
+  return 0;
 }
 
 sio:
-//--------- Основной режим - запись прошивки
-//--------------------------------------------
+// --------- Main mode - write firmware
+// --------------------------------------------
 
-// Настройка SIO
-open_port(devname);
+// SIO Configuration
+open_port (devname);
 
-// Определяем режим порта и версию dload-протокола
+// Define the port mode and the version of the dload protocol
 
 res=dloadversion();
 if (res == -1) return -2;
 if (res == 0) {
-  printf("\n Модем уже находится в HDLC-режиме");
-  goto hdlc;
+  printf ("\n The modem is already in HDLC mode");
+  goto hdlc;
 }
 
-// Если надо, отправляем команду цифровой подписи
-if (gflag != -1) send_signver();
+// If necessary, send the command of the digital signature
+if (gflag! = -1) send_signver ();
 
-// Входим в HDLC-режим
+// Enter the HDLC mode
 
 usleep(100000);
 enter_hdlc();
 
-// Вошли в HDLC
-//------------------------------
+// We entered HDLC
+// ------------------------------
 hdlc:
 
-// получаем версию протокола и идентификатор устройства
-protocol_version();
-dev_ident();
+// get the protocol version and the device ID
+protocol_version ();
+dev_ident ();
 
 
 printf("\n----------------------------------------------------\n");
 
-if ((optind>=argc)&rflag) {
-  // перезагрузка без указания файла
-  restart_modem();
-  exit(0);
-}  
+if ((optind> = argc) & rflag) {
+   // reboot without specifying a file
+   restart_modem ();
+   exit (0);
+}
 
-// Записываем всю флешку
-flash_all();
-printf("\n");
+// Write the whole flash drive
+flash_all ();
+printf ("\n");
 
 port_timeout(1);
 
-// выходим из режима HDLC и перезагружаемся
-if (rflag || !kflag) restart_modem();
-// выход из HDLC без перезагрузки
-else leave_hdlc();
-} 
+// exit the HDLC mode and reboot
+if (rflag ||! kflag) restart_modem ();
+// exit HDLC without rebooting
+else leave_hdlc ();
+}

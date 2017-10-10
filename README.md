@@ -1,3 +1,3 @@
 # balongflash
-Программа для прошивки модемов фирмы Huawei на чипсете Balong v7
+Program for flashing modems by Huawei on the Balong v7 chipset
 
