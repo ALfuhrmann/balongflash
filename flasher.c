@@ -191,7 +191,7 @@ void flash_all() {
 int32_t part;
 uint32_t blk,maxblock;
 
-printf ("\n ## ---- The name of the section ---- is written");
+printf ("\n##  section name          percent written");
 // The main cycle of recording partitions
 for(part=0;part<npart;part++) {
 printf("\n");  

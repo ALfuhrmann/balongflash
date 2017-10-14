@@ -159,7 +159,7 @@ if (optind>=argc) {
   if (nflag)
     printf("\n - The directory with files is not specified\n");
   else 
-    printf("\n - The name of the file to upload is not specified, use the -h switch for the prompt\n");
+    printf("\n - The name of the file to upload is not specified, use the -h switch for help.\n");
   return -1;
 }  
 
